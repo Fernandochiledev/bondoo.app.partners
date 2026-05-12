@@ -252,7 +252,7 @@ const App = () => {
               <Crown className="text-white" size={32} />
             </div>
             <h1>Bondoo Partners</h1>
-            <p>Inicia sesión para gestionar tus referidos</p>
+            <p>Inicia sesión con tu cuenta bondoo.app, sino tienes, <a href="https://bondoo.app/register" style={{ color: 'var(--primary)', fontWeight: 'bold', textDecoration: 'underline' }}>registrate aqui: bondoo.app/register</a></p>
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
