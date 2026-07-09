@@ -75,10 +75,11 @@ const App = () => {
 
   const fetchUsers = async () => {
     try {
-      const data = await authService.getUsers();
+      // El backend devuelve solo los referidos del partner autenticado
+      const data = await authService.getReferrals();
       setAllUsers(data);
     } catch (err) {
-      console.error("Error fetching users:", err);
+      console.error("Error fetching referrals:", err);
     }
   };
 
@@ -136,11 +137,10 @@ const App = () => {
     }
 
     try {
-      // Check for duplicates case-insensitively
-      const users = await authService.getUsers();
-      const duplicate = users.find(u => u.partnerCode?.toLowerCase() === code.toLowerCase());
-      
-      if (duplicate) {
+      // Verificación de duplicados en el backend (case-insensitive)
+      const available = await authService.checkPartnerCode(code);
+
+      if (!available) {
         setError('Este código ya está en uso por otra cuenta');
         setLoading(false);
         return;
@@ -168,7 +168,8 @@ const App = () => {
     setAllUsers([]);
   };
 
-  const myReferrals = allUsers.filter(u => u.partnerCode === user?.partnerCode);
+  // allUsers ya viene filtrado por el backend: son solo los referidos de este partner
+  const myReferrals = allUsers;
   const myProspects = myReferrals.filter(u => u.planName === 'Basic');
   const myClients = myReferrals.filter(u => u.planName === 'Premium' || u.planName === 'All Inclusive');
 

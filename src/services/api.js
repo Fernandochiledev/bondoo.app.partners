@@ -1,6 +1,6 @@
 import { cookieService } from './storage';
 
-const BASE_URL = 'https://4j9s67zbu6.execute-api.us-east-1.amazonaws.com/prod';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://4j9s67zbu6.execute-api.us-east-1.amazonaws.com/prod';
 
 export const authService = {
   login: async (email, password) => {
@@ -76,19 +76,38 @@ export const authService = {
 
   isAuthenticated: () => !!localStorage.getItem('bondoo_token'),
 
-  getUsers: async () => {
+  // Devuelve SOLO los usuarios vinculados al partnerCode del usuario autenticado
+  getReferrals: async () => {
     try {
       const token = localStorage.getItem('bondoo_token');
-      const response = await fetch(`${BASE_URL}/bondoo/users`, {
+      const response = await fetch(`${BASE_URL}/bondoo/partner/referrals`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error fetching users');
+      if (!response.ok) throw new Error(data.error || 'Error fetching referrals');
       return data;
     } catch (error) {
-      console.error('Get users error:', error);
+      console.error('Get referrals error:', error);
+      throw error;
+    }
+  },
+
+  // Verifica en el backend si un partnerCode está disponible (case-insensitive)
+  checkPartnerCode: async (code) => {
+    try {
+      const token = localStorage.getItem('bondoo_token');
+      const response = await fetch(`${BASE_URL}/bondoo/partner/check-code?code=${encodeURIComponent(code)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Error verificando código');
+      return data.available;
+    } catch (error) {
+      console.error('Check partner code error:', error);
       throw error;
     }
   }
